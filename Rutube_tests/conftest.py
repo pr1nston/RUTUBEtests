@@ -1,6 +1,6 @@
 import os
 import pytest
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, TimeoutError
 
 # Фикстура для Browser
 @pytest.fixture(scope="session")
@@ -19,19 +19,26 @@ def page(browser_instance):
     context.close()
 
 # В conftest.py или отдельном utils.py
-def close_all_popups(page):
-    """Закрывает все всплывающие окна с кнопкой 'Закрыть' с ожиданием."""
-    try:
-        while True:
-            try:
-                # Ждём кнопку до 2 секунд
-                btn = page.get_by_role("button", name="Закрыть").first
-                btn.wait_for(state="visible", timeout=10000)
-                btn.click()
-            except TimeoutError:
-                break  # Если больше нет кнопок, выходим
-    except:
-        pass
+def close_all_popups(page: Page):
+    """Закрывает все всплывающие окна с кнопкой 'Закрыть' на странице."""
+    for _ in range(5):  # повторяем несколько раз, чтобы точно закрыть все
+        try:
+            buttons = page.locator('button', has_text='Закрыть')
+            count = buttons.count()
+            if count == 0:
+                break
+            for i in range(count):
+                try:
+                    buttons.nth(i).click(timeout=2000)
+                except TimeoutError:
+                    continue
+        except:
+            break
+
+@pytest.fixture(autouse=True)
+def close_popups_before_test(page: Page):
+    close_all_popups(page)
+    yield
 
 
 # Скриншоты при падении теста
