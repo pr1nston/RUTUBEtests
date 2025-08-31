@@ -1,10 +1,6 @@
 name: Rutube_tests
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -29,4 +25,33 @@ jobs:
         run: |
           wget https://github.com/allure-framework/allure2/releases/download/2.25.0/allure-2.25.0.tgz
           tar -zxvf allure-2.25.0.tgz
-          sudo mv allure-2.
+          sudo mkdir -p /opt/allure
+          sudo mv allure-2.25.0/* /opt/allure/
+          sudo ln -sf /opt/allure/bin/allure /usr/bin/allure
+
+      - name: Ensure browsers are installed
+        run: python -m playwright install --with-deps
+
+      - name: Create results folders
+        run: mkdir -p test-results/screenshots test-results/videos
+
+      - name: Run pytest with global ordering and Allure
+        run: pytest --alluredir=allure-results --order-scope=session -v --capture=sys
+
+      - name: Generate Allure Report
+        if: always()
+        run: allure generate allure-results -o allure-report --clean
+
+      - name: Upload Allure Report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+
+      - name: Upload Playwright traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
