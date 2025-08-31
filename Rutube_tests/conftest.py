@@ -20,18 +20,17 @@ def page(browser_instance):
 
 # В conftest.py или отдельном utils.py
 def close_all_popups(page):
-    """Закрывает все всплывающие окна с кнопкой 'Закрыть' на странице."""
+    """Закрывает все всплывающие окна с кнопкой 'Закрыть' с ожиданием."""
     try:
-        close_buttons = page.get_by_role("button", name="Закрыть")
-        count = close_buttons.count()
-        for i in range(count):
+        while True:
             try:
-                close_buttons.nth(i).click()
-            except:
-                # Иногда кнопка может исчезнуть между подсчётом и кликом
-                continue
+                # Ждём кнопку до 2 секунд
+                btn = page.get_by_role("button", name="Закрыть").first
+                btn.wait_for(state="visible", timeout=4000)
+                btn.click()
+            except TimeoutError:
+                break  # Если больше нет кнопок, выходим
     except:
-        # Если кнопок нет, просто продолжаем
         pass
 
 
