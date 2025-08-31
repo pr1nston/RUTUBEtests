@@ -1,29 +1,57 @@
 name: Rutube_tests
+
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+  workflow_dispatch:
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.13'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Ensure browsers are installed
-      run: python -m playwright install --with-deps
-    - - name: Run pytest with global ordering
-    - run: pytest --order-scope=session -v
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-traces
-        path: test-results/
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install allure-pytest
+
+      - name: Install Allure CLI
+        run: |
+          wget https://github.com/allure-framework/allure2/releases/download/2.25.0/allure-2.25.0.tgz
+          tar -zxvf allure-2.25.0.tgz
+          sudo mkdir -p /opt/allure
+          sudo mv allure-2.25.0/* /opt/allure/
+          sudo ln -sf /opt/allure/bin/allure /usr/bin/allure
+
+      - name: Ensure browsers are installed
+        run: python -m playwright install --with-deps
+
+      - name: Create results folders
+        run: mkdir -p test-results/screenshots test-results/videos
+
+      - name: Run pytest with Allure and global ordering
+        run: pytest --alluredir=allure-results --order-scope=session -v --capture=sys
+
+      - name: Generate Allure Report
+        if: always()
+        run: allure generate allure-results -o allure-report --clean
+
+      - name: Upload Allure Report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+
+      - name: Upload Playwright traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
