@@ -30,7 +30,7 @@ def close_all_popups(page: Page):
                 break
             for i in range(count):
                 try:
-                    buttons.nth(i).click(timeout=2000)
+                    buttons.nth(i).click(timeout=1000)
                 except TimeoutError:
                     continue
         except:
