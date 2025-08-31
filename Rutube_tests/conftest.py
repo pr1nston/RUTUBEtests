@@ -6,7 +6,7 @@ from playwright.sync_api import sync_playwright
 def browser():
     # Запускаем браузер и создаем контекст с записью видео
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
         context = browser.new_context(record_video_dir="test-results/videos")
         page = context.new_page()
         yield page
