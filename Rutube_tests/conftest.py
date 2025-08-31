@@ -1,6 +1,7 @@
 import os
 import pytest
-from playwright.sync_api import sync_playwright, TimeoutError
+from playwright.sync_api import sync_playwright, Page  # <-- Page нужно импортировать
+from playwright.sync_api import TimeoutError
 
 # Фикстура для Browser
 @pytest.fixture(scope="session")
