@@ -18,6 +18,23 @@ def page(browser_instance):
     yield page
     context.close()
 
+# В conftest.py или отдельном utils.py
+def close_all_popups(page):
+    """Закрывает все всплывающие окна с кнопкой 'Закрыть' на странице."""
+    try:
+        close_buttons = page.get_by_role("button", name="Закрыть")
+        count = close_buttons.count()
+        for i in range(count):
+            try:
+                close_buttons.nth(i).click()
+            except:
+                # Иногда кнопка может исчезнуть между подсчётом и кликом
+                continue
+    except:
+        # Если кнопок нет, просто продолжаем
+        pass
+
+
 # Скриншоты при падении теста
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
