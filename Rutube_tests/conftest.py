@@ -7,7 +7,7 @@ from playwright.sync_api import TimeoutError
 @pytest.fixture(scope="session")
 def browser_instance():
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
         yield browser
         browser.close()
 
