@@ -26,7 +26,7 @@ def close_all_popups(page):
             try:
                 # Ждём кнопку до 2 секунд
                 btn = page.get_by_role("button", name="Закрыть").first
-                btn.wait_for(state="visible", timeout=4000)
+                btn.wait_for(state="visible", timeout=10000)
                 btn.click()
             except TimeoutError:
                 break  # Если больше нет кнопок, выходим
