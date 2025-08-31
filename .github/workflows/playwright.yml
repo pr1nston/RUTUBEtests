@@ -35,7 +35,7 @@ jobs:
       - name: Create results folders
         run: mkdir -p test-results/screenshots test-results/videos
 
-      - name: Run pytest with global ordering and Allure
+      - name: Run pytest with Allure and global ordering
         run: pytest --alluredir=allure-results --order-scope=session -v --capture=sys
 
       - name: Generate Allure Report
