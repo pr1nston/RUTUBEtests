@@ -3,8 +3,6 @@ import pytest
 @pytest.mark.order(1)
 def test_rutube_catalog(page: Page):
     page.goto('https://rutube.ru')
-    page.get_by_role("button", name="Закрыть").click()
-    page.get_by_role("button", name="Закрыть").click()
     page.get_by_role('link', name= 'Каталог').click()
     expect(page.get_by_role("link", name="RUTUBE x PREMIER RUTUBE x")).to_be_visible()
     expect(page.get_by_role("link", name="Авто Авто")).to_be_visible()
