@@ -19,29 +19,6 @@ def page(browser_instance):
     yield page
     context.close()
 
-# В conftest.py или отдельном utils.py
-def close_all_popups(page: Page):
-    """Закрывает все всплывающие окна с кнопкой 'Закрыть' на странице."""
-    for _ in range(5):  # повторяем несколько раз, чтобы точно закрыть все
-        try:
-            buttons = page.locator('button', has_text='Закрыть')
-            count = buttons.count()
-            if count == 0:
-                break
-            for i in range(count):
-                try:
-                    buttons.nth(i).click(timeout=1000)
-                except TimeoutError:
-                    continue
-        except:
-            break
-
-@pytest.fixture(autouse=True)
-def close_popups_before_test(page: Page):
-    close_all_popups(page)
-    yield
-
-
 # Скриншоты при падении теста
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
